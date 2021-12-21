@@ -44,6 +44,18 @@ class BingoBoardCollection():
         else:
             raise RuntimeError("No winning board found.")
 
+    def find_losing_score(self, draw: "list[int]") -> int:
+        for value in draw:
+            for board in self.boards[:]:
+                board.mark_value(value)
+                if board.check_bingo():
+                    if len(self.boards) == 1:
+                        return board.calculate_score()
+                    else:
+                        self.boards.remove(board)
+        else:
+            raise RuntimeError("No losing board found.")
+
 
 def puzzle_1(inputfile: Path) -> int:
     with open(inputfile, 'r') as file:
@@ -57,13 +69,20 @@ def puzzle_1(inputfile: Path) -> int:
 
 
 def puzzle_2(inputfile: Path) -> int:
-    pass
+    with open(inputfile, 'r') as file:
+        draw = [int(x) for x in file.readline().strip('\n').split(',')]
+        file.readline()
+        board_strings = []
+        for line in file:
+            board_strings.append(line.strip('\n'))
+    bingo_boards = BingoBoardCollection(boards=board_strings)
+    return bingo_boards.find_losing_score(draw=draw)
 
 
 def main():
     inputfile = Path("puzzle_1_input.txt")
     print(f"Puzzle 1 Answer = {puzzle_1(inputfile)}")
-    # print(f"Puzzle 2 Answer = {puzzle_2(inputfile)}")
+    print(f"Puzzle 2 Answer = {puzzle_2(inputfile)}")
 
 
 if __name__ == "__main__":

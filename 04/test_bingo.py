@@ -74,5 +74,15 @@ def test_bingoboardcollection_find_winning_score(bingo_board_collection):
     assert bingo_board_collection.find_winning_score(draw=draw) == 4512
 
 
+def test_bingoboardcollection_find_losing_score(bingo_board_collection):
+    draw = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25,
+            12, 22, 18, 20, 8, 19, 3, 26, 1]
+    assert bingo_board_collection.find_losing_score(draw=draw) == 1924
+
+
 def test_puzzle_1():
     assert puzzle_1(Path(__file__).parent / "puzzle_1_test_input.txt") == 4512
+
+
+def test_puzzle_2():
+    assert puzzle_2(Path(__file__).parent / "puzzle_1_test_input.txt") == 1924
