@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 from os import read
 from pathlib import Path
-from typing import Callable, Tuple
+from typing import Callable, Dict, Tuple
 import numpy.typing as npt
 import numpy as np
 
@@ -23,6 +23,58 @@ def count_unique_segment_digits(readings: "list[list[list[str]]]") -> int:
                 count += 1
 
     return count
+
+
+def decode_entry(reading: "list[str]") -> "dict[str, int]":
+    """Decode the signals to identify digits for an entry
+
+    Args:
+        readings (list[str]): list of signals from the 4 digit displays. These
+                              are the un-decoded segment signals acquired from observation.
+
+    Returns:
+        dict[str, int]: A dictionary mapping the (sorted) segment signals to their digits
+    """
+    unique_signal_length_map = {2: 1, 3: 7, 4: 4, 7: 8}
+    five_segments = []
+    six_segments = []
+    segment_map = {}
+    set_map = {}
+
+    for signal in reading:
+        sig_len = len(signal)
+        if sig_len in unique_signal_length_map.keys():
+            segment_map[''.join(sorted(signal))] = unique_signal_length_map[sig_len]
+            set_map[unique_signal_length_map[sig_len]] = set(signal)
+        elif sig_len == 5:
+            five_segments.append(set(signal))
+        elif sig_len == 6:
+            six_segments.append(set(signal))
+
+    for signal in six_segments:
+        if len(set_map[1] - signal) == 1:
+            segment_map[''.join(sorted(signal))] = 6
+            set_map[6] = signal
+        elif len(set_map[4] - signal) == 0:
+            segment_map[''.join(sorted(signal))] = 9
+            set_map[9] = signal
+        else:
+            segment_map[''.join(sorted(signal))] = 0
+
+    for signal in five_segments:
+        if len(set_map[6] - signal) == 1:
+            segment_map[''.join(sorted(signal))] = 5
+            five_segments.remove(signal)
+            break
+
+    for signal in five_segments:
+        if len(signal - set_map[9]) == 1:
+            segment_map[''.join(sorted(signal))] = 3
+        else:
+            segment_map[''.join(sorted(signal))] = 2
+
+    return segment_map
+
 
 def puzzle_1(inputfile: Path) -> int:
     readings = []
