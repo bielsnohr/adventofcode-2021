@@ -1,5 +1,5 @@
-from seven_segment import count_unique_segment_digits, decode_entry
-from seven_segment import puzzle_1, Path
+from seven_segment import count_unique_segment_digits, decode_entry, sum_decoded_outputs
+from seven_segment import puzzle_1, puzzle_2, Path
 import pytest
 
 
@@ -27,11 +27,13 @@ def signals():
         [['gcafb', 'gcf', 'dcaebfg', 'ecagb', 'gf', 'abcdeg', 'gaef', 'cafbge', 'fdbac', 'fegbdc'],
          ['fgae', 'cfgab', 'fg', 'bagce']]
     ]
+
+
 @pytest.fixture
 def hard_signal():
     return (['acedgfb', 'cdfbe', 'gcdfa', 'fbcad', 'dab', 'cefabd', 'cdfgeb', 'eafb', 'cagedb', 'ab'],
-            {'abcdefg': 8, 'bcdef': 5, 'acdfg': 2, 'abcdf': 3, 'abd': 7, 'abcdef': 9, 'bcdefg': 6, 'abef': 4,
-             'abcdeg': 0, 'ab': 1})
+            {'abcdefg': '8', 'bcdef': '5', 'acdfg': '2', 'abcdf': '3', 'abd': '7', 'abcdef': '9', 'bcdefg': '6', 'abef': '4',
+             'abcdeg': '0', 'ab': '1'})
 
 
 def test_count_unique_segment_digits(signals):
@@ -48,5 +50,9 @@ def test_decode_entry(hard_signal):
         assert decoded_signals[key] == hard_signal[1][key]
 
 
-# def test_puzzle_2():
-#     assert puzzle_2(Path(__file__).parent / "puzzle_1_test_input.txt") == 26984457539
+def test_sum_decoded_outputs(signals):
+    assert sum_decoded_outputs(readings=signals) == 61229
+
+
+def test_puzzle_2():
+    assert puzzle_2(Path(__file__).parent / "puzzle_1_test_input.txt") == 61229

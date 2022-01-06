@@ -25,7 +25,7 @@ def count_unique_segment_digits(readings: "list[list[list[str]]]") -> int:
     return count
 
 
-def decode_entry(reading: "list[str]") -> "dict[str, int]":
+def decode_entry(reading: "list[str]") -> "dict[str, str]":
     """Decode the signals to identify digits for an entry
 
     Args:
@@ -44,7 +44,7 @@ def decode_entry(reading: "list[str]") -> "dict[str, int]":
     for signal in reading:
         sig_len = len(signal)
         if sig_len in unique_signal_length_map.keys():
-            segment_map[''.join(sorted(signal))] = unique_signal_length_map[sig_len]
+            segment_map[''.join(sorted(signal))] = str(unique_signal_length_map[sig_len])
             set_map[unique_signal_length_map[sig_len]] = set(signal)
         elif sig_len == 5:
             five_segments.append(set(signal))
@@ -53,27 +53,38 @@ def decode_entry(reading: "list[str]") -> "dict[str, int]":
 
     for signal in six_segments:
         if len(set_map[1] - signal) == 1:
-            segment_map[''.join(sorted(signal))] = 6
+            segment_map[''.join(sorted(signal))] = '6'
             set_map[6] = signal
         elif len(set_map[4] - signal) == 0:
-            segment_map[''.join(sorted(signal))] = 9
-            set_map[9] = signal
+            segment_map[''.join(sorted(signal))] = '9'
         else:
-            segment_map[''.join(sorted(signal))] = 0
+            segment_map[''.join(sorted(signal))] = '0'
 
     for signal in five_segments:
         if len(set_map[6] - signal) == 1:
-            segment_map[''.join(sorted(signal))] = 5
+            segment_map[''.join(sorted(signal))] = '5'
             five_segments.remove(signal)
+            set_map[5] = signal
             break
 
     for signal in five_segments:
-        if len(signal - set_map[9]) == 1:
-            segment_map[''.join(sorted(signal))] = 3
+        if len(signal - set_map[5]) == 1:
+            segment_map[''.join(sorted(signal))] = '3'
         else:
-            segment_map[''.join(sorted(signal))] = 2
+            segment_map[''.join(sorted(signal))] = '2'
 
     return segment_map
+
+
+def sum_decoded_outputs(readings: "list[list[list[str]]]") -> int:
+    output_sum = 0
+    for reading in readings:
+        signal_map = decode_entry(reading=reading[0])
+        number = ''
+        for output in reading[1]:
+            number += signal_map[''.join(sorted(output))]
+        output_sum += int(number)
+    return output_sum
 
 
 def puzzle_1(inputfile: Path) -> int:
@@ -86,10 +97,12 @@ def puzzle_1(inputfile: Path) -> int:
 
 
 def puzzle_2(inputfile: Path) -> int:
-    pass
-    # with open(inputfile, 'r') as file:
-    #     crab_positions = [int(x) for x in file.readline().strip('\n').split(sep=',')]
-    # return minimise_fuel_cost(crab_positions=crab_positions, distance_function=arithmetic_sum)[0]
+    readings = []
+    with open(inputfile, 'r') as file:
+        for line in file:
+            signals, reading = line.split(sep='|')
+            readings.append([signals.split(), reading.split()])
+    return sum_decoded_outputs(readings=readings)
 
 
 def main():
